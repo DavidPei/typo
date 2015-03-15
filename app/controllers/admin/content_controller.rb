@@ -28,6 +28,7 @@ class Admin::ContentController < Admin::BaseController
   end
 
   def edit
+    @is_admin = current_user.admin?
     @article = Article.find(params[:id])
     unless @article.access_by? current_user
       redirect_to :action => 'index'
@@ -35,6 +36,16 @@ class Admin::ContentController < Admin::BaseController
       return
     end
     new_or_edit
+  end
+  
+  def merge_with
+    @article = Article.find(params[:id])
+    if (@article.nil?) or (params[:id] == params[:merge_with])
+      flash[:error] = "Error: Invalid Merge"
+    else
+      @article.merge_with(params[:merge_with])
+    end
+    redirect_to :action => "index"
   end
 
   def destroy
